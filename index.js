@@ -12,7 +12,7 @@ app.get('/', (req, res) => {
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = "mongodb+srv://sakif:hvItr3Wb3oQqCfjK@cluster0.w0ws3zg.mongodb.net/?retryWrites=true&w=majority";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -28,6 +28,40 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+
+    const serviceCollection = client.db('carDoctor').collection('services');
+    const bookingCollection = client.db('carDoctor').collection('bookings')
+
+    app.get('/services',async(req,res)=>{
+      const cursor = serviceCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+      console.log(result)
+    })
+
+    app.get('/services/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)}
+
+      const options = {
+        projection:{title:1,price:1,service_id:1},
+      };
+      const result = await serviceCollection.findOne(query);
+      res.send(result)
+      console.log(result)
+    })
+
+
+
+    app.post("/bookings", async (req, res) => {
+      const order = req.body;
+      console.log(order);
+      const result = await bookingCollection.insertOne(order);
+      res.send(result);
+    });
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
