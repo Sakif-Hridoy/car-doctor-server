@@ -1,11 +1,16 @@
 const express = require('express')
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
 const jwt = require('jsonwebtoken')
 const app = express()
 const port = 5000
 
-app.use(cors());
-app.use(express.json())
+app.use(cors({
+  origin:['http://localhost:5173'],
+  credentials:true
+}));
+app.use(express.json());
+app.use(cookieParser());
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
@@ -41,10 +46,15 @@ async function run() {
     app.post('/jwt',async(req,res)=>{
       const user = req.body;
       console.log(user);
-      const token = jwt.sign(user,'secret',{expiresIn: '1h'})
-      console.log(token)
+      const token = jwt.sign(user,'2aa83640f796c3bb0448c8f90975923f503d8dbeb3d3d56eb0326b0403f0d5e09ff5f6dd4a641cd338a9fef29eac5069b66fe9bcffeba5c3bf9c11c2198176fb',{expiresIn: '1h'})
+      // console.log(token)
       // res.send(token);
-      res.send(token)
+      res
+      .cookie('token',token,{
+        httpOnly:true,
+        secure:false
+      })
+      .send({success:true})
     })
 
 
@@ -75,6 +85,7 @@ async function run() {
 
     app.get('/bookings',async(req,res)=>{
       console.log(req.query.email)
+      console.log('tok tok token',req.cookies.token)
       let query = {};
       if(req.query?.email){
         query = {email:req.query.email}
