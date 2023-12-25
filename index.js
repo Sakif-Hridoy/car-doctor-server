@@ -40,7 +40,17 @@ const verifyToken = async(req,res,next)=>{
     })
   }
 
-  next()
+  jwt.verify(token,'2aa83640f796c3bb0448c8f90975923f503d8dbeb3d3d56eb0326b0403f0d5e09ff5f6dd4a641cd338a9fef29eac5069b66fe9bcffeba5c3bf9c11c2198176fb',(err,decoded)=>{
+    if (err) {
+      console.log(err)
+      return res.status(401).send({message:'unauthorized'})
+    }
+    console.log('value in the token',decoded)
+    req.user = decoded
+    next()
+  })
+
+  
 }
 
 async function run() {
@@ -98,6 +108,7 @@ async function run() {
 
     app.get('/bookings',verifyToken,async(req,res)=>{
       console.log(req.query.email)
+      console.log('from valid token',req.user)
       // console.log('tok tok token',req.cookies.token)
       let query = {};
       if(req.query?.email){
