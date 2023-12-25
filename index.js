@@ -109,6 +109,9 @@ async function run() {
     app.get('/bookings',verifyToken,async(req,res)=>{
       console.log(req.query.email)
       console.log('from valid token',req.user)
+      if(req.query.email !== req.user.email){
+        return res.status(403).send({message:'forbidden access'})
+      }
       // console.log('tok tok token',req.cookies.token)
       let query = {};
       if(req.query?.email){
