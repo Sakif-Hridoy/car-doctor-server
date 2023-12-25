@@ -30,6 +30,19 @@ const client = new MongoClient(uri, {
   }
 });
 
+
+const verifyToken = async(req,res,next)=>{
+  const token = req.cookies?.token;
+  console.log('from middleware',token)
+  if(!token){
+    return res.status(401).send({
+      message:'not authorized'
+    })
+  }
+
+  next()
+}
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -83,9 +96,9 @@ async function run() {
     })
 
 
-    app.get('/bookings',async(req,res)=>{
+    app.get('/bookings',verifyToken,async(req,res)=>{
       console.log(req.query.email)
-      console.log('tok tok token',req.cookies.token)
+      // console.log('tok tok token',req.cookies.token)
       let query = {};
       if(req.query?.email){
         query = {email:req.query.email}
